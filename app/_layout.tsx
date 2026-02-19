@@ -1,24 +1,47 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Stack, useRouter } from "expo-router";
+import { createContext, useEffect, useState } from "react";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+interface CartCountContextType {
+  cartCount: number;
+  setCartCount: (count: number) => void;
+}
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+export const CartCountContext = createContext<CartCountContextType | null>(null);
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [cartCount, setCartCount] = useState(0);
+  const router = useRouter();
 
+  const checkUser = async () => {
+    try {
+      const result = await AsyncStorage.getItem("user");
+      if (!result) {
+        router.replace("/(auth)");
+        return;
+      }
+      const user = JSON.parse(result);
+      if (user?.token) {
+        router.replace("/(tabs)");
+      } else {
+        router.replace("/(auth)");
+      }
+    } catch (error) {
+      console.error("Error checking user:", error);
+      router.replace("/(auth)");
+    }
+  };
+
+  useEffect(() => {
+    checkUser();
+  }, [router]);
+  
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+    <CartCountContext.Provider value={{ cartCount, setCartCount }}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </CartCountContext.Provider>
   );
 }

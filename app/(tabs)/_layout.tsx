@@ -1,35 +1,77 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { Tabs } from "expo-router";
+import React, { useContext } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { CartCountContext } from "../_layout";
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+const _layout = () => {
+  const cart = useContext(CartCountContext);
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        animation: "shift",
+        tabBarActiveTintColor: "black",
+        tabBarInactiveTintColor: "gray",
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          headerTitle: "პროდუქტები",
+          tabBarLabel: "products",
+          tabBarIcon: ({ color, focused }) => (
+            <AntDesign name="shop" size={focused ? 24 : 22} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="cart"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          headerTitle: "საყიდლები",
+          tabBarIcon: ({ color, focused }) => (
+            <AntDesign
+              name="shopping-cart"
+              size={focused ? 24 : 22}
+              color={color}
+            />
+          ),
+          headerRight: () => (
+            <View style={styles.bellIcon}>
+              <AntDesign name="bell" size={20} color="black" />
+              <Text>{cart?.cartCount ?? 0}</Text>
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          headerTitle: "პროფილი",
+          tabBarIcon: ({ color, focused }) => (
+            <AntDesign
+              name="user-switch"
+              size={focused ? 24 : 22}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="products/[id]/index"
+        options={{
+          href: null,
+          headerTitle: "პროდუქტი",
         }}
       />
     </Tabs>
   );
-}
+};
+
+export default _layout;
+
+const styles = StyleSheet.create({
+  bellIcon: {
+    marginRight: 16,
+  },
+});

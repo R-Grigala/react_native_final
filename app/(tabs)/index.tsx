@@ -1,98 +1,189 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+type Product = {
+  category: string;
+  description: string;
+  id: number;
+  image: string;
+  price: number;
+  rating: { count: number; rate: number };
+  title: string;
+};
 
-export default function HomeScreen() {
+const Index = () => {
+  const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProducts = useCallback(async () => {
+    setError(null);
+    try {
+      const resp = await fetch("https://fakestoreapi.com/products");
+      if (!resp.ok) {
+        throw new Error(`Request failed (${resp.status})`);
+      }
+      const data: Product[] = await resp.json();
+      setProducts(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load products");
+    }
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      setIsLoading(true);
+      await fetchProducts();
+      setIsLoading(false);
+    })();
+  }, [fetchProducts]);
+
+  const onRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await fetchProducts();
+    setIsRefreshing(false);
+  }, [fetchProducts]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+        <Text style={styles.centerText}>იტვირთება პროდუქტები...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorTitle}>ვერ ჩაიტვირთა პროდუქტები</Text>
+        <Text style={styles.errorText}>{error}</Text>
+        <Pressable style={styles.retryButton} onPress={fetchProducts}>
+          <Text style={styles.retryText}>თავიდან ცდა</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
-
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <FlatList
+      data={products}
+      keyExtractor={(item) => String(item.id)}
+      refreshing={isRefreshing}
+      onRefresh={onRefresh}
+      contentContainerStyle={styles.listContent}
+      renderItem={({ item }) => (
+        <Pressable
+          style={styles.card}
+          onPress={() =>
+            router.push({
+              pathname: "/products/[id]",
+              params: { id: String(item.id) },
+            })
+          }
+        >
+          <Image source={item.image} style={styles.image} contentFit="contain" />
+          <View style={styles.info}>
+            <Text style={styles.title} numberOfLines={2}>
+              {item.title}
+            </Text>
+            <Text style={styles.meta} numberOfLines={1}>
+              {item.category} • ⭐ {item.rating?.rate ?? 0} ({item.rating?.count ?? 0})
+            </Text>
+            <Text style={styles.price}>${item.price}</Text>
+          </View>
+        </Pressable>
+      )}
+      ListEmptyComponent={
+        <View style={styles.center}>
+          <Text style={styles.centerText}>პროდუქტები ვერ მოიძებნა</Text>
+        </View>
+      }
+    />
   );
-}
+};
+
+export default Index;
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  listContent: {
+    padding: 16,
+    gap: 12,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  centerText: {
+    marginTop: 10,
+    color: "#4b5563",
+  },
+  errorTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 6,
+    textAlign: "center",
+  },
+  errorText: {
+    color: "#6b7280",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: "#111827",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  retryText: {
+    color: "white",
+    fontWeight: "700",
+  },
+  card: {
+    flexDirection: "row",
+    gap: 12,
+    padding: 12,
+    backgroundColor: "white",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+  },
+  image: {
+    width: 72,
+    height: 72,
+    alignSelf: "center",
+  },
+  info: {
+    flex: 1,
+    gap: 4,
+  },
+  title: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#111827",
+  },
+  meta: {
+    fontSize: 12,
+    color: "#6b7280",
+  },
+  price: {
+    marginTop: 6,
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#111827",
   },
 });
