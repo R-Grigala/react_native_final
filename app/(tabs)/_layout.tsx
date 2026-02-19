@@ -5,7 +5,7 @@ import React, { useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { CartCountContext } from "../_layout";
 
-const _layout = () => {
+const TabsLayout = () => {
   const cart = useContext(CartCountContext);
   return (
     <Tabs
@@ -68,7 +68,7 @@ const _layout = () => {
   );
 };
 
-export default _layout;
+export default TabsLayout;
 
 const styles = StyleSheet.create({
   bellIcon: {

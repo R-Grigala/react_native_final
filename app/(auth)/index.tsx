@@ -104,7 +104,7 @@ const Index = () => {
         />
 
         <View style={styles.switchRow}>
-          <Text style={styles.switchLabel}>Don't have an account? </Text>
+          <Text style={styles.switchLabel}>{"Don't have an account? "}</Text>
           <Link href={"/(auth)/register"} replace={true} style={styles.switchLink}>
             Register
           </Link>

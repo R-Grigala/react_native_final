@@ -32,7 +32,7 @@ const emptyCart: Cart = {
   products: [],
 };
 
-const cart = () => {
+const CartScreen = () => {
   const [cart, setCart] = useState<Cart | null>(null);
   const [productPrices, setProductPrices] = useState<Record<number, number>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -239,7 +239,7 @@ const cart = () => {
   );
 };
 
-export default cart;
+export default CartScreen;
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },

@@ -9,7 +9,12 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "პროფილის სურათის გადასაღებად საჭიროა კამერაზე წვდომა.",
+        "NSPhotoLibraryUsageDescription": "პროფილის სურათის ასარჩევად საჭიროა ფოტოების ბიბლიოთეკაზე წვდომა.",
+        "NSPhotoLibraryAddUsageDescription": "ფოტოს შესანახად საჭიროა ფოტოების ბიბლიოთეკაზე წვდომა."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -27,6 +32,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-image-picker",
       [
         "expo-splash-screen",
         {
