@@ -1,50 +1,103 @@
-# Welcome to your Expo app 👋
+# react_native_final
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+React Native (Expo) მობილური აპლიკაცია — პროდუქტების კატალოგი, კალათა, ავტორიზაცია და პროფილი.
 
-## Get started
+## ტექნოლოგიური სტეკი
 
-1. Install dependencies
+| კატეგორია | ტექნოლოგია |
+|-----------|-------------|
+| ფრეიმვორკი | React Native, Expo SDK 54 |
+| ნავიგაცია | expo-router (file-based routing) |
+| ვალიდაცია | react-hook-form, yup |
+| შენახვა | AsyncStorage |
+| UI | expo-image, @expo/vector-icons |
 
-   ```bash
-   npm install
-   ```
+## პროექტის სტრუქტურა
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+react_native_final/
+├── app/
+│   ├── _layout.tsx          # Root layout, auth check, CartCountContext
+│   ├── (auth)/              # ავტორიზაცია (არავტორიზებული)
+│   │   ├── _layout.tsx
+│   │   ├── index.tsx        # შესვლა
+│   │   └── register.tsx     # რეგისტრაცია
+│   └── (tabs)/              # მთავარი აპი (ავტორიზებული)
+│       ├── _layout.tsx      # Tab layout
+│       ├── index.tsx        # პროდუქტების სია
+│       ├── cart.tsx         # კალათა
+│       ├── profile.tsx      # პროფილი (ავატარი, გასვლა)
+│       └── products/[id]/   # პროდუქტის დეტალი
+├── components/
+│   ├── appButton/
+│   ├── appInput/
+│   ├── appTitle/
+│   └── cartItem/
+├── assets/images/
+├── app.json
+├── package.json
+└── tsconfig.json
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## ფუნქციონალი
 
-## Learn more
+- **ავტორიზაცია** — შესვლა (Fake Store API), რეგისტრაცია (ლოკალური)
+- **პროდუქტები** — სია fakestoreapi.com-დან, დეტალი, კალათაში დამატება
+- **კალათა** — ნივთის რაოდენობის შეცვლა, წაშლა, ჯამური ფასი, ყიდვის ღილაკი
+- **პროფილი** — მომხმარებლის სახელი, ავატარის ატვირთვა (გალერეა/კამერა), გასვლა
 
-To learn more about developing your project with Expo, look at the following resources:
+## მონაცემების წყაროები
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- პროდუქტები: `https://fakestoreapi.com/products`
+- ავტორიზაცია: `https://fakestoreapi.com/auth/login`
+- AsyncStorage: `user`, `cart`, `registeredUser`, `profile_avatar_uri`
 
-## Join the community
+## სადაწყება
 
-Join our community of developers creating universal apps.
+### მოთხოვნები
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Node.js (Expo 54-თან თავსებადი)
+- npm ან yarn
+
+### დაყენება
+
+```bash
+npm install
+```
+
+### გაშვება
+
+```bash
+npm start
+```
+
+ან:
+
+```bash
+npx expo start
+```
+
+შემდეგ გახსენით:
+
+- iOS სიმულატორი: `i`
+- Android ემულატორი: `a`
+- ან Expo Go თქვენს მოწყობილობაზე (QR კოდი)
+
+### სხვა სკრიპტები
+
+| სკრიპტი | ბრძანება | აღწერა |
+|---------|----------|--------|
+| android | `expo start --android` | Android-ზე გაშვება |
+| ios     | `expo start --ios`     | iOS-ზე გაშვება |
+| web     | `expo start --web`     | Web-ზე გაშვება |
+| lint    | `expo lint`            | ESLint შემოწმება |
+
+## კონფიგურაცია
+
+- **app.json** — Expo კონფიგურაცია, iOS/Android permission-ები (კამერა, ფოტოები)
+- **tsconfig.json** — path alias: `@/*` → `./*`
+- **eslint.config.js** — ESLint + expo კონფიგურაცია
+
+## ლიცენზია
+
+პროფესიული/პრივატური პროექტი (private).
