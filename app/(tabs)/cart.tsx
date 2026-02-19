@@ -4,10 +4,12 @@ import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { CartCountContext } from "../_layout";
@@ -111,6 +113,35 @@ const cart = () => {
     }
   };
 
+  const handlePurchase = async () => {
+    if (!cart || cart.products.length === 0) return;
+
+    try {
+      // Clear the cart after purchase
+      await AsyncStorage.setItem("cart", JSON.stringify(emptyCart));
+      setCart(emptyCart);
+      
+      // Update cart count
+      if (cartContext) {
+        cartContext.setCartCount(0);
+      }
+      
+      // Show success alert
+      Alert.alert(
+        "success!",
+        "შეძენა წარმატებით დასრულდა. გმადლობთ!",
+        [{ text: "კარგი", style: "default" }]
+      );
+    } catch (error) {
+      console.error("Error processing purchase:", error);
+      Alert.alert(
+        "შეცდომა",
+        "შეძენის დროს მოხდა შეცდომა. გთხოვთ სცადოთ თავიდან.",
+        [{ text: "კარგი", style: "default" }]
+      );
+    }
+  };
+
   useEffect(() => {
     if (cart && cartContext) {
       const total = cart.products.reduce((prev, item) => {
@@ -195,6 +226,15 @@ const cart = () => {
         <Text style={styles.totalLabel}>Total</Text>
         <Text style={styles.totalAmount}>${totalAmount.toFixed(2)}</Text>
       </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.purchaseButton}
+          onPress={handlePurchase}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.purchaseButtonText}>ყიდვა</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
@@ -233,5 +273,31 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     color: "gray",
+  },
+  buttonContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
+  purchaseButton: {
+    backgroundColor: "#007AFF",
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  purchaseButtonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "600",
   },
 });
